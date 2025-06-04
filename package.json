@@ -1,0 +1,44 @@
+{
+  "name": "demo-chat",
+  "version": "1.0.0",
+  "description": "A real-time chat application",
+  "scripts": {
+    "dev": "concurrently \"npm run dev:frontend\" \"npm run dev:backend\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm run dev",
+    "build": "npm run build:frontend && npm run build:backend",
+    "build:frontend": "cd frontend && npm run build",
+    "build:backend": "cd backend && npm run build",
+    "security:audit": "npm audit",
+    "security:fix": "npm audit fix",
+    "deps:check": "npm-check-updates",
+    "deps:update": "npm-check-updates -u && npm install"
+  },
+  "devDependencies": {
+    "@sentry/cli": "^2.30.2",
+    "@sentry/node": "^7.101.1",
+    "@sentry/react": "^7.101.1",
+    "@sentry/tracing": "^7.101.1",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^8.2.2",
+    "cross-env": "^7.0.3",
+    "dotenv": "^16.4.5",
+    "npm-check-updates": "^16.14.20",
+    "pino": "^8.17.2",
+    "pino-pretty": "^10.3.1",
+    "postcss": "^8.5.3",
+    "tailwindcss": "^4.0.9",
+    "web-vitals": "^3.5.2"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.0.9",
+    "bcryptjs": "^2.4.3",
+    "cors": "^2.8.5",
+    "demo-chat": "file:",
+    "express-rate-limit": "^7.1.5",
+    "helmet": "^7.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "socket.io": "^4.7.4",
+    "socket.io-client": "^4.7.4"
+  }
+}
