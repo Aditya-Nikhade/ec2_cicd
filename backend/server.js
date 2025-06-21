@@ -6,8 +6,9 @@ const cors = require('cors');
 
 const authRoutes = require("./routes/auth.routes");
 const messageRoutes = require("./routes/message.routes");
-const userRoutes = require("./routes/user.routes");
+const userRoutes = require("./routes/userRoutes");
 const friendRoutes = require("./routes/friends.routes");
+const fileRoutes = require("./routes/file.routes");
 const connectToMongoDB = require("./db/connectToMongoDB");
 const { app, server } = require("./socket/socket");
 
@@ -23,10 +24,21 @@ app.use(cors({
 	credentials: true
 }));
 
+// Create uploads directory if it doesn't exist
+const fs = require('fs');
+if (!fs.existsSync('uploads')) {
+    fs.mkdirSync('uploads');
+}
+
+// Serve static files from uploads directory
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// API Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/friends", friendRoutes);
+app.use("/api/files", fileRoutes);
 
 app.use(express.static(path.join(__dirname, "/frontend/dist")));
 

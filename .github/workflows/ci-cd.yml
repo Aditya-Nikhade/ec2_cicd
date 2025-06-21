@@ -85,6 +85,22 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            cd /home/ec2-user/app
-            docker-compose pull
+            # Navigate to app directory
+            cd /home/ec2-user/ec2_cicd
+            
+            # Pull latest changes
+            git pull origin main
+            
+            # Create/update root .env file
+            cat > .env << EOL
+            ${{ secrets.ROOT_ENV }}
+            EOL
+            
+            # Create/update backend .env file
+            cat > backend/.env << EOL
+            ${{ secrets.BACKEND_ENV }}
+            EOL
+            
+            # Restart containers
+            docker-compose down
             docker-compose up -d 

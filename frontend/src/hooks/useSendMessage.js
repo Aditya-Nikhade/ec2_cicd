@@ -6,20 +6,41 @@ const useSendMessage = () => {
 	const [loading, setLoading] = useState(false);
 	const { messages, setMessages, selectedConversation } = useConversation();
 
-	const sendMessage = async (message) => {
+	const sendMessage = async (message, messageId = null, isDelete = false) => {
 		setLoading(true);
 		try {
-			const res = await fetch(`/api/messages/send/${selectedConversation._id}`, {
-				method: "POST",
+			const endpoint = messageId 
+				? `/api/messages/${messageId}`
+				: `/api/messages/send/${selectedConversation._id}`;
+
+			const method = isDelete ? "DELETE" : (messageId ? "PUT" : "POST");
+			const body = messageId && !isDelete
+				? { message }
+				: { message };
+
+			const res = await fetch(endpoint, {
+				method,
 				headers: {
 					"Content-Type": "application/json",
 				},
-				body: JSON.stringify({ message }),
+				body: method !== "DELETE" ? JSON.stringify(body) : undefined,
 			});
 			const data = await res.json();
 			if (data.error) throw new Error(data.error);
 
-			setMessages([...messages, data]);
+			if (messageId) {
+				// Update existing message
+				setMessages(messages.map(msg => 
+					msg._id === messageId 
+						? isDelete 
+							? { ...msg, message: "This message was deleted" }
+							: { ...msg, message }
+						: msg
+				));
+			} else {
+				// Add new message
+				setMessages([...messages, data]);
+			}
 		} catch (error) {
 			toast.error(error.message);
 		} finally {
@@ -29,4 +50,5 @@ const useSendMessage = () => {
 
 	return { sendMessage, loading };
 };
+
 export default useSendMessage;

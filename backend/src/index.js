@@ -1,72 +1,44 @@
-// Import statements.
-require('dotenv').config();
-const express = require('express');
-const morgan = require('morgan');
-const connectDB = require('../config/database');
-const securityMiddleware = require('../config/security');
-const initSession = require('../config/session');
-const logger = require('../config/logger');
-const cacheService = require('../config/cache');
+import path from "path";
+import express from "express";
+import dotenv from "dotenv";
+import cookieParser from "cookie-parser";
+import cors from 'cors';
 
-const app = express();
+import authRoutes from "../routes/auth.routes.js";
+import messageRoutes from "../routes/message.routes.js";
+import userRoutes from "../routes/user.routes.js";
+import friendRoutes from "../routes/friends.routes.js";
+import fileRoutes from "../routes/file.routes.js";
+import connectToMongoDB from "../db/connectToMongoDB.js";
+import { app, server } from "../socket/socket.js";
 
-// Initialize security middleware
-securityMiddleware(app);
+dotenv.config();
 
-// Body parser
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-
-// HTTP request logger
-app.use(morgan('combined', { stream: logger.stream }));
-
-// Initialize session
-let redisClient;
-(async () => {
-  redisClient = await initSession(app);
-  await cacheService.connect();
-})();
-
-// Routes
-app.use('/api/auth', require('./routes/auth'));
-app.use('/api/messages', require('./routes/messages'));
-app.use('/api/users', require('./routes/users'));
-
-// Health check endpoint
-app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'healthy' });
-});
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  logger.error(err.stack);
-  res.status(err.status || 500).json({
-    message: err.message || 'Internal Server Error',
-    ...(process.env.NODE_ENV === 'development' && { stack: err.stack }),
-  });
-});
-
-// Start server
+const __dirname = path.resolve();
 const PORT = process.env.PORT || 5000;
-const startServer = async () => {
-  try {
-    await connectDB();
-    app.listen(PORT, () => {
-      logger.info(`Server running on port ${PORT}`);
-    });
-  } catch (error) {
-    logger.error('Failed to start server:', error);
-    process.exit(1);
-  }
-};
 
-startServer();
+app.use(express.json());
+app.use(cookieParser());
+app.use(cors({
+    origin: 'http://localhost:5173',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+    credentials: true,
+  }));
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  logger.error('Unhandled Promise Rejection:', err);
-  // Close server & exit process
-  process.exit(1);
+app.use("/api/auth", authRoutes);
+app.use("/api/messages", messageRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/friends", friendRoutes);
+app.use("/api/files", fileRoutes);
+
+app.use(express.static(path.join(__dirname, "/frontend/dist")));
+
+app.get("*", (req, res) => {
+	res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"));
 });
 
-module.exports = app; 
+server.listen(PORT, () => {
+	connectToMongoDB();
+	console.log(`Server Running on port ${PORT}`);
+});

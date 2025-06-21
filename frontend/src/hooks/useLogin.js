@@ -23,7 +23,11 @@ const useLogin = () => {
 			const data = await res.json();
 			
 			if (!res.ok) {
-				throw new Error(data.error || "Something went wrong during login");
+				let errorMsg = data.error || data.message || "Something went wrong during login";
+				if (res.status === 429) {
+					errorMsg = data.message || "Too many requests. Please try again later.";
+				}
+				throw new Error(errorMsg);
 			}
 			
 			localStorage.setItem("chat-user", JSON.stringify(data));

@@ -24,19 +24,16 @@ const SignUp = () => {
 			toast.error("Please fill in all fields");
 			return;
 		}
-
 		// Check if passwords match
 		if (inputs.password !== inputs.confirmPassword) {
 			toast.error("Passwords do not match");
 			return;
 		}
 
-		// Check password length
-		if (inputs.password.length < 6) {
-			toast.error("Password must be at least 6 characters long");
+		if (!passwordRegex.test(inputs.password)) {
+			toast.error("Password must be at least 8 characters and include uppercase, lowercase, number, and symbol.");
 			return;
 		}
-
 		await signup(inputs);
 	};
 
