@@ -30,7 +30,7 @@ jobs:
       #   run: npm test
 
       - name: Build Docker images for verification
-        run: docker-compose -f docker-compose.yml build
+        run: docker compose build
 
   cd:
     name: Continuous Deployment
