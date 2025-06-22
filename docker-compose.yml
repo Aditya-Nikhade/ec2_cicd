@@ -41,8 +41,8 @@ services:
       - SMTP_PORT=${SMTP_PORT}
       - SMTP_USER=${SMTP_USER}
       - SMTP_PASS=${SMTP_PASS}
-    depends_on:
-      - mongodb  # COMMENT OUT IF USING EXTERNAL MONGODB
+    #depends_on:
+      #- mongodb  # COMMENT OUT IF USING EXTERNAL MONGODB
       # - redis    # COMMENT OUT IF USING EXTERNAL REDIS
     networks:
       - app-network
@@ -51,17 +51,17 @@ services:
       - .env
 
   # COMMENT OUT IF USING EXTERNAL MONGODB SERVICE
-  mongodb:
-    image: mongo:latest
-    volumes:
-      - mongodb_data:/data/db
-    networks:
-      - app-network
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME:-admin}
-      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-password123}
-    env_file:
-      - .env
+  # mongodb:
+  #   image: mongo:latest
+  #   volumes:
+  #     - mongodb_data:/data/db
+  #   networks:
+  #     - app-network
+  #   environment:
+  #     - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME:-admin}
+  #     - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-password123}
+  #   env_file:
+  #     - .env
 
   # COMMENT OUT IF USING EXTERNAL REDIS SERVICE  
   # redis:
