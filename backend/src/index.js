@@ -20,29 +20,29 @@ const PORT = process.env.PORT || 5000;
 app.use(express.json());
 app.use(cookieParser());
 
+// Dynamic CORS configuration for EC2 deployment
+const corsOrigin = process.env.CORS_ORIGIN || "http://localhost:5173";
 const allowedOrigins = [
-	// "http://localhost:5173", // Vite dev server - COMMENTED OUT FOR EC2
-	// "http://localhost",      // Docker Nginx frontend - COMMENTED OUT FOR EC2
-	// "http://localhost:80",   // COMMENTED OUT FOR EC2
-	
-	// EC2 Production URLs - UNCOMMENT AND UPDATE WITH YOUR EC2 PUBLIC IP/DOMAIN
-	"http://13.235.67.27",           // Replace with your EC2 public IP
-	"http://13.235.67.27:80",     // Replace with your EC2 public IP
-	"https://13.235.67.27",          // Replace with your EC2 public IP (if using HTTPS)
-	// "http://YOUR_DOMAIN.com",              // Replace with your domain (if you have one)
-	// "https://YOUR_DOMAIN.com",             // Replace with your domain (if you have one)
+    corsOrigin,
+    corsOrigin.replace('http://', 'https://'), // Allow HTTPS version
+    corsOrigin.replace('https://', 'http://'), // Allow HTTP version
+    // Add port variations if needed
+    corsOrigin.replace(/:\d+/, ''), // Remove port if present
+    corsOrigin.replace(/:\d+/, ':80'), // Add port 80
 ];
 
 app.use(cors({
     origin: function (origin, callback) {
-		// Allow requests with no origin (like mobile apps or curl requests)
-		if (!origin) return callback(null, true);
-		if (allowedOrigins.indexOf(origin) === -1) {
-			const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
-			return callback(new Error(msg), false);
-		}
-		return callback(null, true);
-	},
+        // Allow requests with no origin (like mobile apps or curl requests)
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.indexOf(origin) === -1) {
+            console.log('CORS blocked origin:', origin);
+            console.log('Allowed origins:', allowedOrigins);
+            const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+            return callback(new Error(msg), false);
+        }
+        return callback(null, true);
+    },
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,

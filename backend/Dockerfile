@@ -7,8 +7,8 @@ WORKDIR /app
 # Copy package files
 COPY package*.json ./
 
-# Install dependencies
-RUN npm install --omit=dev
+# Install dependencies (keep dev dependencies for build)
+RUN npm install
 
 # Copy the rest of the application
 COPY . .
@@ -16,5 +16,5 @@ COPY . .
 # Expose port 5000
 EXPOSE 5000
 
-# Start the application
-CMD ["node", "src/index.js"] 
+# Start the application using the correct entry point
+CMD ["npm", "start"] 
