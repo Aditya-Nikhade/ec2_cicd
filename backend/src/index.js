@@ -26,11 +26,11 @@ const allowedOrigins = [
 	// "http://localhost:80",   // COMMENTED OUT FOR EC2
 	
 	// EC2 Production URLs - UNCOMMENT AND UPDATE WITH YOUR EC2 PUBLIC IP/DOMAIN
-	"http://YOUR_EC2_PUBLIC_IP",           // Replace with your EC2 public IP
-	"http://YOUR_EC2_PUBLIC_IP:80",        // Replace with your EC2 public IP
-	"https://YOUR_EC2_PUBLIC_IP",          // Replace with your EC2 public IP (if using HTTPS)
-	"http://YOUR_DOMAIN.com",              // Replace with your domain (if you have one)
-	"https://YOUR_DOMAIN.com",             // Replace with your domain (if you have one)
+	"http://13.235.67.27",           // Replace with your EC2 public IP
+	"http://13.235.67.27:80",     // Replace with your EC2 public IP
+	"https://13.235.67.27",          // Replace with your EC2 public IP (if using HTTPS)
+	// "http://YOUR_DOMAIN.com",              // Replace with your domain (if you have one)
+	// "https://YOUR_DOMAIN.com",             // Replace with your domain (if you have one)
 ];
 
 app.use(cors({
