@@ -1,7 +1,8 @@
-const session = require('express-session');
-const RedisStore = require('connect-redis').default;
-const { createClient } = require('redis');
-const logger = require('./logger');
+import session from 'express-session';
+import connectRedis from 'connect-redis';
+import { createClient } from 'redis';
+import logger from './logger.js';
+const RedisStore = connectRedis.default || connectRedis;
 
 const initSession = async (app) => {
   // Create Redis client
@@ -43,4 +44,4 @@ const initSession = async (app) => {
   return redisClient;
 };
 
-module.exports = initSession; 
+export default initSession; 

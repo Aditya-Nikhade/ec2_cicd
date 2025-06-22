@@ -17,7 +17,7 @@ const MessageContainer = () => {
 	// Clear selected conversation on mount
 	useEffect(() => {
 		setSelectedConversation(null);
-	}, []);
+	}, [setSelectedConversation]);
 
 	const handleUnfriend = async () => {
 		if (!selectedConversation?._id) return;
@@ -70,7 +70,7 @@ const MessageContainer = () => {
 							<div className="bg-white p-6 rounded-lg shadow-lg max-w-sm w-full mx-4">
 								<h3 className="text-lg font-semibold text-gray-900 mb-2">Unfriend Confirmation</h3>
 								<p className="text-gray-600 mb-4">
-									Are you sure you want to unfriend {selectedConversation.fullName}? You won't be able to chat unless you become friends again.
+									Are you sure you want to unfriend {selectedConversation.fullName}? You won&apos;t be able to chat unless you become friends again.
 								</p>
 								<div className="flex justify-end gap-3">
 									<button

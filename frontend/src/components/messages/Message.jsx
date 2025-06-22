@@ -5,7 +5,6 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { FiEdit2, FiTrash2 } from "react-icons/fi";
 import useSendMessage from "../../hooks/useSendMessage";
 import { toast } from "react-hot-toast";
-import EmojiPicker from "emoji-picker-react";
 import ProfileModal from "../profile/ProfileModal";
 
 const Message = ({ message }) => {
@@ -37,7 +36,7 @@ const Message = ({ message }) => {
 
 	const renderMessageContent = () => {
 		if (message.message.startsWith('[File]')) {
-			const [_, fileName, fileUrl] = message.message.split(' - ');
+			const [, fileName, fileUrl] = message.message.split(' - ');
 			const fileExtension = fileName.split('.').pop().toLowerCase();
 			
 			// Determine file type icon

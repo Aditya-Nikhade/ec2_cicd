@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import toast from "react-hot-toast";
 import { useAuthContext } from "../context/AuthContext";
 import useConversation from "../zustand/useConversation";
@@ -11,7 +11,7 @@ const useGetConversations = () => {
 	const { updateTrigger, selectedConversation, clearSelectedConversation } = useConversation();
 	const { socket } = useSocketContext();
 
-	const getConversations = async () => {
+	const getConversations = useCallback(async () => {
 		if (!authUser) return;
 		
 		setLoading(true);
@@ -39,15 +39,15 @@ const useGetConversations = () => {
 		} finally {
 			setLoading(false);
 		}
-	};
+	}, [authUser, selectedConversation, clearSelectedConversation]);
 
-	const removeConversation = (userId) => {
+	const removeConversation = useCallback((userId) => {
 		setConversations(prev => prev.filter(conv => conv._id !== userId));
-	};
+	}, []);
 
 	useEffect(() => {
 		getConversations();
-	}, [authUser, updateTrigger]);
+	}, [authUser, updateTrigger, getConversations]);
 
 	useEffect(() => {
 		if (!socket) return;
@@ -64,7 +64,7 @@ const useGetConversations = () => {
 			socket.off("unfriended", handleUnfriended);
 			socket.off("friendRequestAccepted", handleFriendRequestAccepted);
 		};
-	}, [socket]);
+	}, [socket, removeConversation, getConversations]);
 
 	return { loading, conversations, refetchConversations: getConversations, removeConversation };
 };

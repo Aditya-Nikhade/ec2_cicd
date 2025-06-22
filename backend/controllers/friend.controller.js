@@ -188,7 +188,7 @@ export const unfriendUser = async (req, res) => {
     });
 
     // Delete conversation between the two users
-    const conversation = await Conversation.findOneAndDelete({
+    await Conversation.findOneAndDelete({
       participants: { $all: [userId, currentUserId] }
     });
 

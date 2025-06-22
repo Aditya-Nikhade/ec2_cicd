@@ -174,7 +174,7 @@ export const useFriendRequests = () => {
       socket.off("friendRequestRejected");
       socket.off("unfriended");
     };
-  }, [socket]);
+  }, [socket, refetchConversations, removeConversation, selectedConversation, clearSelectedConversation]);
 
   return { 
     loading, 

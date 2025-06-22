@@ -14,7 +14,7 @@ const FriendRequests = () => {
 
   useEffect(() => {
     getFriendRequests();
-  }, []);
+  }, [getFriendRequests]);
 
   return (
     <div className="p-4 bg-white border-b border-gray-200">

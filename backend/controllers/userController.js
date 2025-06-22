@@ -1,6 +1,6 @@
-const User = require("../models/userModel");
-const cloudinary = require("../config/cloudinary");
-const fs = require("fs");
+import User from "../models/userModel.js";
+import cloudinary from "../config/cloudinary.js";
+import fs from "fs";
 
 const updateUser = async (req, res) => {
 	try {
@@ -73,7 +73,4 @@ const updateProfilePicture = async (req, res) => {
 	}
 };
 
-module.exports = {
-	updateUser,
-	updateProfilePicture
-}; 
+export { updateUser, updateProfilePicture }; 

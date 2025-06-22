@@ -1,3 +1,4 @@
+/* global beforeAll, afterAll, afterEach, jest */
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import dotenv from 'dotenv';

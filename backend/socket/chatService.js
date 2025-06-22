@@ -1,4 +1,4 @@
-const logger = require('../config/logger');
+import logger from '../config/logger.js';
 
 class ChatService {
   constructor(io) {
@@ -77,4 +77,4 @@ class ChatService {
   }
 }
 
-module.exports = ChatService; 
+export default ChatService; 

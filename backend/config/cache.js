@@ -1,5 +1,5 @@
-const { createClient } = require('redis');
-const logger = require('./logger');
+import { createClient } from 'redis';
+import logger from './logger.js';
 
 class CacheService {
   constructor() {
@@ -91,5 +91,4 @@ class CacheService {
   }
 }
 
-const cacheService = new CacheService();
-module.exports = cacheService; 
+export default new CacheService(); 

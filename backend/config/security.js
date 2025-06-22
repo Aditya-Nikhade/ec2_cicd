@@ -1,9 +1,9 @@
-const helmet = require('helmet');
-const rateLimit = require('express-rate-limit');
-const cors = require('cors');
-const xss = require('xss-clean');
-const hpp = require('hpp');
-const logger = require('./logger');
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import cors from 'cors';
+import xss from 'xss-clean';
+import hpp from 'hpp';
+import logger from './logger.js';
 
 const securityMiddleware = (app) => {
   // Basic security headers
@@ -55,4 +55,4 @@ const securityMiddleware = (app) => {
   });
 };
 
-module.exports = securityMiddleware; 
+export default securityMiddleware; 
