@@ -42,8 +42,7 @@ export const searchUsers = async (req, res) => {
 		
 		const users = await User.find({
 			username: { $regex: username, $options: "i" },
-			_id: { $ne: userId },
-			_id: { $nin: currentUser.friends }
+			_id: { $nin: [...currentUser.friends, userId] }
 		}).select("fullName username");
 
 		res.status(200).json(users);

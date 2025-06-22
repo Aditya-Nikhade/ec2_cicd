@@ -19,12 +19,34 @@ const PORT = process.env.PORT || 5000;
 
 app.use(express.json());
 app.use(cookieParser());
+
+const allowedOrigins = [
+	// "http://localhost:5173", // Vite dev server - COMMENTED OUT FOR EC2
+	// "http://localhost",      // Docker Nginx frontend - COMMENTED OUT FOR EC2
+	// "http://localhost:80",   // COMMENTED OUT FOR EC2
+	
+	// EC2 Production URLs - UNCOMMENT AND UPDATE WITH YOUR EC2 PUBLIC IP/DOMAIN
+	"http://YOUR_EC2_PUBLIC_IP",           // Replace with your EC2 public IP
+	"http://YOUR_EC2_PUBLIC_IP:80",        // Replace with your EC2 public IP
+	"https://YOUR_EC2_PUBLIC_IP",          // Replace with your EC2 public IP (if using HTTPS)
+	"http://YOUR_DOMAIN.com",              // Replace with your domain (if you have one)
+	"https://YOUR_DOMAIN.com",             // Replace with your domain (if you have one)
+];
+
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: function (origin, callback) {
+		// Allow requests with no origin (like mobile apps or curl requests)
+		if (!origin) return callback(null, true);
+		if (allowedOrigins.indexOf(origin) === -1) {
+			const msg = 'The CORS policy for this site does not allow access from the specified Origin.';
+			return callback(new Error(msg), false);
+		}
+		return callback(null, true);
+	},
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
-  }));
+}));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/messages", messageRoutes);

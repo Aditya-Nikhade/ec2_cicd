@@ -1,5 +1,7 @@
 // backend/controllers/friend.controller.js
 import User from "../models/user.model.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
+import Conversation from "../models/conversation.model.js";
 
 // Send friend request
 export const sendFriendRequest = async (req, res) => {
@@ -7,6 +9,9 @@ export const sendFriendRequest = async (req, res) => {
     const { userId } = req.body;
     const senderId = req.user._id;
 
+    if (senderId.toString() === userId) {
+      return res.status(400).json({ error: "You cannot send a friend request to yourself" });
+    }
     // Check if users exist
     const receiver = await User.findById(userId);
     const sender = await User.findById(senderId);
@@ -36,6 +41,12 @@ export const sendFriendRequest = async (req, res) => {
     await User.findByIdAndUpdate(senderId, {
       $push: { sentRequests: userId }
     });
+
+    // Emit socket event to receiver
+    const receiverSocketId = getReceiverSocketId(userId);
+    if (receiverSocketId) {
+      io.to(receiverSocketId).emit("friendRequestReceived", { senderId });
+    }
 
     res.status(200).json({ message: "Friend request sent" });
   } catch (error) {
@@ -74,6 +85,12 @@ export const acceptFriendRequest = async (req, res) => {
       $pull: { friendRequests: userId }
     });
 
+    // Emit socket event to sender
+    const senderSocketId = getReceiverSocketId(userId);
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("friendRequestAccepted", { receiverId });
+    }
+
     res.status(200).json({ message: "Friend request accepted" });
   } catch (error) {
     console.error("Error in acceptFriendRequest: ", error.message);
@@ -96,6 +113,12 @@ export const rejectFriendRequest = async (req, res) => {
     await User.findByIdAndUpdate(userId, {
       $pull: { sentRequests: receiverId }
     });
+
+    // Emit socket event to sender
+    const senderSocketId = getReceiverSocketId(userId);
+    if (senderSocketId) {
+      io.to(senderSocketId).emit("friendRequestRejected", { receiverId });
+    }
 
     res.status(200).json({ message: "Friend request rejected" });
   } catch (error) {
@@ -163,6 +186,21 @@ export const unfriendUser = async (req, res) => {
     await User.findByIdAndUpdate(currentUserId, {
       $pull: { friends: userId }
     });
+
+    // Delete conversation between the two users
+    const conversation = await Conversation.findOneAndDelete({
+      participants: { $all: [userId, currentUserId] }
+    });
+
+    // Emit socket event to both users
+    const userToUnfriendSocketId = getReceiverSocketId(userId);
+    if (userToUnfriendSocketId) {
+      io.to(userToUnfriendSocketId).emit("unfriended", { userId: currentUserId });
+    }
+    const currentUserSocketId = getReceiverSocketId(currentUserId);
+    if (currentUserSocketId) {
+      io.to(currentUserSocketId).emit("unfriended", { userId });
+    }
 
     res.status(200).json({ message: "Successfully unfriended user" });
   } catch (error) {

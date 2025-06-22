@@ -1,12 +1,16 @@
 // frontend/src/hooks/useFriendRequests.js
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import toast from "react-hot-toast";
 import useGetConversations from "./useGetConversations";
+import { useSocketContext } from "../context/SocketContext";
+import useConversation from "../zustand/useConversation";
 
 export const useFriendRequests = () => {
   const [loading, setLoading] = useState(false);
   const [requests, setRequests] = useState([]);
   const { refetchConversations, removeConversation } = useGetConversations();
+  const { socket } = useSocketContext();
+  const { selectedConversation, clearSelectedConversation } = useConversation();
 
   const getFriendRequests = async () => {
     setLoading(true);
@@ -135,6 +139,42 @@ export const useFriendRequests = () => {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    if (!socket) return;
+
+    // When a new friend request is received
+    socket.on("friendRequestReceived", () => {
+      getFriendRequests();
+    });
+
+    // When a friend request is accepted
+    socket.on("friendRequestAccepted", () => {
+      refetchConversations();
+      getFriendRequests();
+    });
+
+    // When a friend request is rejected
+    socket.on("friendRequestRejected", () => {
+      getFriendRequests();
+    });
+
+    // When unfriended
+    socket.on("unfriended", ({ userId }) => {
+      removeConversation(userId);
+      refetchConversations();
+      if (selectedConversation && selectedConversation._id === userId) {
+        clearSelectedConversation();
+      }
+    });
+
+    return () => {
+      socket.off("friendRequestReceived");
+      socket.off("friendRequestAccepted");
+      socket.off("friendRequestRejected");
+      socket.off("unfriended");
+    };
+  }, [socket]);
 
   return { 
     loading, 

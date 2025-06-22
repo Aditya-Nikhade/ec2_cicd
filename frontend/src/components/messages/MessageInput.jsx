@@ -3,6 +3,7 @@ import { BsSend } from "react-icons/bs";
 import useSendMessage from "../../hooks/useSendMessage";
 import { useSocketContext } from "../../context/SocketContext";
 import useConversation from "../../zustand/useConversation";
+import useGetConversations from "../../hooks/useGetConversations";
 
 const MessageInput = () => {
 	const [message, setMessage] = useState("");
@@ -10,10 +11,15 @@ const MessageInput = () => {
 	const { socket } = useSocketContext();
 	const { selectedConversation } = useConversation();
 	const typingTimeoutRef = useRef(null);
+	const { conversations } = useGetConversations();
+
+	// Check if selected user is a friend
+	const isFriend = selectedConversation && conversations.some(conv => conv._id === selectedConversation._id);
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
 		if (!message) return;
+		if (!isFriend) return;
 
 		await sendMessage(message);
 		setMessage("");
@@ -66,15 +72,19 @@ const MessageInput = () => {
 							socket.emit("typing_stop", { receiverId: selectedConversation._id });
 						}
 					}}
+					disabled={!isFriend}
 				/>
 				<button
 					type="submit"
 					className="p-2 rounded-full bg-green-600 hover:bg-green-700 transition-colors disabled:opacity-50"
-					disabled={loading || !message}
+					disabled={loading || !message || !isFriend}
 				>
 					<BsSend className="w-5 h-5 text-white" />
 				</button>
 			</div>
+			{!isFriend && selectedConversation && (
+				<p className="text-red-500 text-xs mt-2">You are not friends with this user. Messaging is disabled.</p>
+			)}
 		</form>
 	);
 };

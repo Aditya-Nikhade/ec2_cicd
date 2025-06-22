@@ -2,12 +2,14 @@ import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useAuthContext } from "../context/AuthContext";
 import useConversation from "../zustand/useConversation";
+import { useSocketContext } from "../context/SocketContext";
 
 const useGetConversations = () => {
 	const [loading, setLoading] = useState(false);
 	const [conversations, setConversations] = useState([]);
 	const { authUser } = useAuthContext();
-	const { updateTrigger } = useConversation();
+	const { updateTrigger, selectedConversation, clearSelectedConversation } = useConversation();
+	const { socket } = useSocketContext();
 
 	const getConversations = async () => {
 		if (!authUser) return;
@@ -28,6 +30,9 @@ const useGetConversations = () => {
 			}
 
 			setConversations(data);
+			if (selectedConversation && !data.some(conv => conv._id === selectedConversation._id)) {
+				clearSelectedConversation();
+			}
 		} catch (error) {
 			toast.error(error.message);
 			console.error("Error fetching conversations:", error);
@@ -43,6 +48,23 @@ const useGetConversations = () => {
 	useEffect(() => {
 		getConversations();
 	}, [authUser, updateTrigger]);
+
+	useEffect(() => {
+		if (!socket) return;
+		const handleUnfriended = ({ userId }) => {
+			removeConversation(userId);
+			getConversations();
+		};
+		const handleFriendRequestAccepted = () => {
+			getConversations();
+		};
+		socket.on("unfriended", handleUnfriended);
+		socket.on("friendRequestAccepted", handleFriendRequestAccepted);
+		return () => {
+			socket.off("unfriended", handleUnfriended);
+			socket.off("friendRequestAccepted", handleFriendRequestAccepted);
+		};
+	}, [socket]);
 
 	return { loading, conversations, refetchConversations: getConversations, removeConversation };
 };

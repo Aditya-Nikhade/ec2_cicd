@@ -2,12 +2,19 @@ import Conversation from "../models/conversation.model.js";
 import Message from "../models/message.model.js";
 import { getReceiverSocketId, io } from "../socket/socket.js";
 import { getCachedMessages, cacheMessages, addMessageToCache, clearMessageCache } from "../db/redis.js";
+import User from "../models/user.model.js";
 
 export const sendMessage = async (req, res) => {
 	try {
 		const { message } = req.body;
 		const { id: receiverId } = req.params;
 		const senderId = req.user._id;
+
+		// Check if users are friends
+		const sender = await User.findById(senderId);
+		if (!sender.friends.includes(receiverId)) {
+			return res.status(403).json({ error: "You are not friends with this user." });
+		}
 
 		let conversation = await Conversation.findOne({
 			participants: { $all: [senderId, receiverId] },
