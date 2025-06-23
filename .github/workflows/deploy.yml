@@ -49,6 +49,6 @@ jobs:
           script: |
             cd /home/ubuntu/ChatApp/ec2_cicd # <-- update this to your actual project path on the server
             git pull origin main
-            docker-compose down
-            docker-compose up -d --build
+            docker compose down
+            docker compose up -d --build
             docker image prune -af 
