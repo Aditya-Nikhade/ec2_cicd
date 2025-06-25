@@ -1,5 +1,5 @@
 // frontend/src/hooks/useFriendRequests.js
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import toast from "react-hot-toast";
 import useGetConversations from "./useGetConversations";
 import { useSocketContext } from "../context/SocketContext";
@@ -12,8 +12,8 @@ export const useFriendRequests = () => {
   const { socket } = useSocketContext();
   const { selectedConversation, clearSelectedConversation } = useConversation();
 
-  const getFriendRequests = async () => {
-    setLoading(true);
+  const getFriendRequests = useCallback(async (showLoader = true) => {
+    if (showLoader) setLoading(true);
     try {
       const res = await fetch(`/api/friends/requests`, {
         headers: {
@@ -31,9 +31,9 @@ export const useFriendRequests = () => {
     } catch (error) {
       toast.error(error.message);
     } finally {
-      setLoading(false);
+      if (showLoader) setLoading(false);
     }
-  };
+  }, []);
 
   const sendFriendRequest = async (userId) => {
     setLoading(true);
@@ -145,18 +145,18 @@ export const useFriendRequests = () => {
 
     // When a new friend request is received
     socket.on("friendRequestReceived", () => {
-      getFriendRequests();
+      getFriendRequests(false);
     });
 
     // When a friend request is accepted
     socket.on("friendRequestAccepted", () => {
       refetchConversations();
-      getFriendRequests();
+      getFriendRequests(false);
     });
 
     // When a friend request is rejected
     socket.on("friendRequestRejected", () => {
-      getFriendRequests();
+      getFriendRequests(false);
     });
 
     // When unfriended
@@ -174,7 +174,7 @@ export const useFriendRequests = () => {
       socket.off("friendRequestRejected");
       socket.off("unfriended");
     };
-  }, [socket, refetchConversations, removeConversation, selectedConversation, clearSelectedConversation]);
+  }, [socket, refetchConversations, removeConversation, selectedConversation, clearSelectedConversation, getFriendRequests]);
 
   return { 
     loading, 

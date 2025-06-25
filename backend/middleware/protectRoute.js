@@ -3,7 +3,14 @@ import User from "../models/user.model.js";
 
 const protectRoute = async (req, res, next) => {
 	try {
-		const token = req.cookies.jwt;
+		// Accept token from either the httpOnly cookie (preferred) OR the
+		// Authorization header so that the frontend can work even when
+		// credentials: "include" is omitted on fetch calls.
+		let token = req.cookies.jwt;
+
+		if (!token && req.headers.authorization && req.headers.authorization.startsWith("Bearer ")) {
+			token = req.headers.authorization.split(" ")[1];
+		}
 
 		if (!token) {
 			return res.status(401).json({ error: "Unauthorized - No Token Provided" });

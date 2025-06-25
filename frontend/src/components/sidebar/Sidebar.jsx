@@ -67,18 +67,18 @@ const Sidebar = () => {
 			</div>
 
 			{/* Content based on active tab */}
-			{activeTab === "chats" && (
-				<>
+			<div className="flex-1 overflow-y-auto bg-white">
+				<div style={{ display: activeTab === "chats" ? "block" : "none" }}>
 					<SearchInput />
-					<div className="flex-1 overflow-y-auto bg-white">
-						<Conversations />
-					</div>
-				</>
-			)}
-
-			{activeTab === "requests" && <FriendRequests />}
-			
-			{activeTab === "find" && <UserSearch />}
+					<Conversations />
+				</div>
+				<div style={{ display: activeTab === "requests" ? "block" : "none" }}>
+					<FriendRequests />
+				</div>
+				<div style={{ display: activeTab === "find" ? "block" : "none" }}>
+					<UserSearch />
+				</div>
+			</div>
 
 			{/* Logout Button */}
 			<div className="border-t border-gray-200 p-4 bg-white">
