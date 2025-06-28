@@ -10,9 +10,9 @@ export const signup = async (req, res) => {
 			return res.status(400).json({ error: "Please provide all required fields" });
 		}
 
-		const user = await User.findOne({ username });
+		const existingUser = await User.findOne({ username });
 
-		if (user) {
+		if (existingUser) {
 			return res.status(400).json({ error: "Username already exists" });
 		}
 
@@ -22,7 +22,7 @@ export const signup = async (req, res) => {
 		const newUser = new User({
 			fullName,
 			username,
-			password: hashedPassword,
+			password: hashedPassword
 		});
 
 		await newUser.save();
@@ -73,6 +73,11 @@ export const login = async (req, res) => {
 		console.error("Error in login controller:", error);
 		res.status(500).json({ error: "Internal Server Error" });
 	}
+};
+
+export const googleCallback = (req, res) => {
+  const token = generateTokenAndSetCookie(req.user._id, res);
+  res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
 };
 
 export const logout = (req, res) => {

@@ -14,8 +14,33 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      required: function() { return this.authProvider === 'local'; },
       minlength: 6,
+    },
+    email: {
+      type: String,
+      required: function() { return this.authProvider === 'google'; },
+      unique: true,
+    },
+    gender: {
+      type: String,
+      required: function() { return this.authProvider === 'google'; },
+      enum: ["male", "female"],
+    },
+    profilePicture: {
+      type: String,
+      default: "",
+    },
+    googleId: {
+      type: String,
+      unique: true,
+      sparse: true, 
+    },
+    authProvider: {
+      type: String,
+      required: true,
+      enum: ['local', 'google'],
+      default: 'local',
     },
     friends: [{
       type: mongoose.Schema.Types.ObjectId,

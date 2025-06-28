@@ -16,6 +16,10 @@ const Login = () => {
     await login({ username, password });
   };
 
+  const handleGoogleLogin = () => {
+    window.location.href = `/api/auth/google`;
+  };
+
   return (
     <div className="flex min-h-screen w-full overflow-hidden m-0 p-0 absolute inset-0">
       {/* Left side - Image */}
@@ -84,10 +88,27 @@ const Login = () => {
                   Logging in...
                 </div>
               ) : (
-                "Next"
+                "Login"
               )}
             </Button>
           </form>
+
+          {/* Divider */}
+          <div className="relative flex items-center justify-center my-6">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative bg-white px-2 text-sm text-gray-500">OR</div>
+          </div>
+
+          {/* Google Sign-In Button */}
+          <Button
+            onClick={handleGoogleLogin}
+            className="cursor-pointer w-full h-12 flex items-center justify-center gap-1 bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 rounded-md"
+          >
+            <img src="/google.png" alt="Google icon" className="h-11 w-11 object-contain" />
+            <span>Sign in with Google</span>
+          </Button>
 
           {/* Sign Up Link */}
           <div className="text-center mt-6">
