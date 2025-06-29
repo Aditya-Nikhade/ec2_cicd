@@ -8,6 +8,7 @@ import { toast } from "react-hot-toast";
 import ProfileModal from "../profile/ProfileModal";
 
 const Message = ({ message }) => {
+	console.log('[DEBUG] Message received by frontend:', message);
 	const { authUser } = useAuthContext();
 	const fromMe = message.senderId === authUser._id;
 	const formattedTime = extractTime(message.createdAt);
@@ -35,6 +36,19 @@ const Message = ({ message }) => {
 	};
 
 	const renderMessageContent = () => {
+		// In Message.jsx
+		if ((message.type === 'image' || message.fileType?.startsWith('image/')) && message.url) {
+			return <img src={message.url} alt={message.fileName} className="max-w-xs rounded-lg" />;
+		}
+		if (message.type === 'file' && message.url) {
+			const handleDownload = () => window.open(message.url, '_blank');
+			return (
+				<button onClick={handleDownload} className="underline text-blue-500">
+					{message.fileName || 'Download file'}
+				</button>
+			);
+		}
+
 		if (message.message.startsWith('[File]')) {
 			const [, fileName, fileUrl] = message.message.split(' - ');
 			const fileExtension = fileName.split('.').pop().toLowerCase();
@@ -127,27 +141,21 @@ const Message = ({ message }) => {
 							</button>
 						</div>
 					) : (
-						<>
-							{message.message.startsWith('[File]') ? (
-								renderMessageContent()
-							) : (
-								<p>{message.message}</p>
-							)}
-							<div className="flex justify-end w-full items-center gap-2">
-								<span className={`text-xs mt-1 ${fromMe ? "text-gray-500" : "text-gray-200"}`}>
-									{formattedTime}
-								</span>
-								{fromMe && !message.message.startsWith('[File]') && message.message !== "This message was deleted" && (
-									<button
-										onClick={() => setShowMenu(!showMenu)}
-										className="opacity-0 group-hover:opacity-100 transition-opacity"
-									>
-										<BsThreeDotsVertical className="w-4 h-4" />
-									</button>
-								)}
-							</div>
-						</>
+						renderMessageContent()
 					)}
+					<div className="flex justify-end w-full items-center gap-2">
+						<span className={`text-xs mt-1 ${fromMe ? "text-gray-500" : "text-gray-200"}`}>
+							{formattedTime}
+						</span>
+						{fromMe && !message.message.startsWith('[File]') && message.message !== "This message was deleted" && (
+							<button
+								onClick={() => setShowMenu(!showMenu)}
+								className="opacity-0 group-hover:opacity-100 transition-opacity"
+							>
+								<BsThreeDotsVertical className="w-4 h-4" />
+							</button>
+						)}
+					</div>
 				</div>
 
 				{/* Message Menu */}

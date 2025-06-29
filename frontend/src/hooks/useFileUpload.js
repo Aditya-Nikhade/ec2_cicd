@@ -26,7 +26,7 @@ const useFileUpload = () => {
             }
 
             toast.success('File uploaded successfully');
-            return data.fileUrl;
+            return { s3Key: data.s3Key, fileName: data.fileName, fileType: data.fileType };
         } catch (error) {
             toast.error(error.message);
             return null;

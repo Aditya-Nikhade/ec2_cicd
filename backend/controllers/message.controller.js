@@ -6,7 +6,7 @@ import User from "../models/user.model.js";
 
 export const sendMessage = async (req, res) => {
 	try {
-		const { message } = req.body;
+		const { message = "", s3Key, fileName, fileType } = req.body;
 		const { id: receiverId } = req.params;
 		const senderId = req.user._id;
 
@@ -30,6 +30,9 @@ export const sendMessage = async (req, res) => {
 			senderId,
 			receiverId,
 			message,
+			type: s3Key ? (fileType?.startsWith("image/") ? "image" : "file") : "text",
+			s3Key,
+			fileName,
 		});
 
 		if (newMessage) {
@@ -42,12 +45,27 @@ export const sendMessage = async (req, res) => {
 		await addMessageToCache(conversation._id.toString(), newMessage);
 		console.log(`[Redis] Cached new message for conversation ${conversation._id}`);
 
-		const receiverSocketId = getReceiverSocketId(receiverId);
-		if (receiverSocketId) {
-			io.to(receiverSocketId).emit("newMessage", newMessage);
+		let payload = newMessage.toObject();
+
+		// If media, generate presigned URL
+		if (s3Key) {
+			try {
+				const { generatePresignedUrl } = await import("./upload.controller.js");
+				const url = await generatePresignedUrl(s3Key);
+				payload.url = url;
+			} catch (err) {
+				console.error("Error generating presigned URL", err);
+			}
 		}
 
-		res.status(201).json(newMessage);
+		console.log('[DEBUG] Payload sent to frontend:', payload);
+
+		const receiverSocketId = getReceiverSocketId(receiverId);
+		if (receiverSocketId) {
+			io.to(receiverSocketId).emit("newMessage", payload);
+		}
+
+		res.status(201).json(payload);
 	} catch (error) {
 		console.log("Error in sendMessage controller: ", error.message);
 		res.status(500).json({ error: "Internal server error" });
@@ -69,21 +87,47 @@ export const getMessages = async (req, res) => {
 		const cachedMessages = await getCachedMessages(conversation._id.toString());
 		
 		if (cachedMessages && cachedMessages.length > 0) {
+			const { generatePresignedUrl } = await import("./upload.controller.js");
+			const cachedWithUrls = await Promise.all(cachedMessages.map(async m => {
+				const obj = m;
+				if (m.s3Key) {
+					try {
+						obj.url = await generatePresignedUrl(m.s3Key);
+					} catch (e) {
+						console.error("[S3] presign error", e);
+					}
+				}
+				return obj;
+			}));
 			console.log(`[Redis] Cache HIT: Retrieved ${cachedMessages.length} messages for conversation ${conversation._id}`);
-			return res.status(200).json(cachedMessages);
+			return res.status(200).json(cachedWithUrls);
 		}
 
 		console.log(`[Redis] Cache MISS: No cached messages found for conversation ${conversation._id}`);
 
 		// If no cache, get from MongoDB and cache the results
 		const populatedConversation = await conversation.populate("messages");
-		const messages = populatedConversation.messages;
+		let messages = populatedConversation.messages;
 
-		// Cache the messages for future requests
+		// DON'T cache URLs (they expire). Cache raw messages only.
 		await cacheMessages(conversation._id.toString(), messages);
 		console.log(`[Redis] Cached ${messages.length} messages from MongoDB for conversation ${conversation._id}`);
 
-		res.status(200).json(messages);
+		// Attach presigned URLs on the fly
+		const { generatePresignedUrl } = await import("./upload.controller.js");
+		const messagesWithUrls = await Promise.all(messages.map(async m => {
+			const obj = m.toObject ? m.toObject() : { ...m };
+			if (m.s3Key) {
+				try {
+					obj.url = await generatePresignedUrl(m.s3Key);
+				} catch (e) {
+					console.error("[S3] presign error", e);
+				}
+			}
+			return obj;
+		}));
+
+		res.status(200).json(messagesWithUrls);
 	} catch (error) {
 		console.log("Error in getMessages controller: ", error.message);
 		res.status(500).json({ error: "Internal server error" });

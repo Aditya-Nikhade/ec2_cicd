@@ -14,9 +14,22 @@ const messageSchema = new mongoose.Schema(
 		},
 		message: {
 			type: String,
-			required: true,
+			default: "",
 		},
-			},
+		type: {
+			type: String,
+			enum: ["text", "image", "file"],
+			default: "text",
+		},
+		s3Key: {
+			type: String,
+			trim: true,
+		},
+		fileName: {
+			type: String,
+			trim: true,
+		},
+	},
 	{ timestamps: true }
 );
 

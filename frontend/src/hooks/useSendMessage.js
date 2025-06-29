@@ -16,7 +16,7 @@ const useSendMessage = () => {
 			const method = isDelete ? "DELETE" : (messageId ? "PUT" : "POST");
 			const body = messageId && !isDelete
 				? { message }
-				: { message };
+				: (typeof message === 'string' ? { message } : message);
 
 			const res = await fetch(endpoint, {
 				method,
@@ -34,7 +34,7 @@ const useSendMessage = () => {
 					msg._id === messageId 
 						? isDelete 
 							? { ...msg, message: "This message was deleted" }
-							: { ...msg, message }
+							: { ...msg, ...(typeof message === 'string' ? { message } : message) }
 						: msg
 				));
 			} else {

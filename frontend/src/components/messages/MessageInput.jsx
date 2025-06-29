@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { BsSend } from "react-icons/bs";
+import FileButton from "../ui/FileButton";
+import useFileUpload from "../../hooks/useFileUpload";
 import useSendMessage from "../../hooks/useSendMessage";
 import { useSocketContext } from "../../context/SocketContext";
 import useConversation from "../../zustand/useConversation";
@@ -7,6 +9,7 @@ import useGetConversations from "../../hooks/useGetConversations";
 
 const MessageInput = () => {
 	const [message, setMessage] = useState("");
+	const { uploadFile, uploading } = useFileUpload();
 	const { loading, sendMessage } = useSendMessage();
 	const { socket } = useSocketContext();
 	const { selectedConversation } = useConversation();
@@ -15,6 +18,13 @@ const MessageInput = () => {
 
 	// Check if selected user is a friend
 	const isFriend = selectedConversation && conversations.some(conv => conv._id === selectedConversation._id);
+
+	const handleFileSelected = async (file) => {
+		if (!file || uploading || !isFriend) return;
+		const meta = await uploadFile(file);
+		if (!meta) return;
+		await sendMessage({ ...meta });
+	};
 
 	const handleSubmit = async (e) => {
 		e.preventDefault();
@@ -58,6 +68,7 @@ const MessageInput = () => {
 	return (
 		<form className="px-4 py-3 bg-white border-t border-gray-100" onSubmit={handleSubmit}>
 			<div className="flex items-center gap-2">
+				<FileButton onFileSelected={handleFileSelected} disabled={!isFriend || uploading} />
 				<input
 					type="text"
 					className="flex-1 px-4 py-2 border border-gray-200 rounded-full focus:outline-none focus:border-gray-400"

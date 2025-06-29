@@ -6,11 +6,13 @@ import useConversation from "../zustand/useConversation";
 import notificationSound from "../assets/sounds/notification.mp3";
 
 const useListenMessages = () => {
+	console.log("useListenMessages hook is running"); // Add this line
 	const { socket } = useSocketContext();
 	const { messages, setMessages } = useConversation();
 
 	useEffect(() => {
 		socket?.on("newMessage", (newMessage) => {
+			console.log("New message received:", newMessage); // Add this line
 			newMessage.shouldShake = true;
 			const sound = new Audio(notificationSound);
 			sound.play();
