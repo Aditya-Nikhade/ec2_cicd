@@ -35,9 +35,9 @@ export const cacheMessages = async (conversationId, messages) => {
     // Add new messages to the list
     if (messages.length > 0) {
         const messageStrings = messages.map(msg => JSON.stringify(msg));
-        await redisClient.lPush(key, messageStrings);
+        await redisClient.rPush(key, messageStrings);
         // Trim to keep only the last MESSAGE_CACHE_SIZE messages
-        await redisClient.lTrim(key, 0, MESSAGE_CACHE_SIZE - 1);
+        await redisClient.lTrim(key, -MESSAGE_CACHE_SIZE, -1);
     }
 };
 
@@ -49,9 +49,9 @@ export const getCachedMessages = async (conversationId) => {
 
 export const addMessageToCache = async (conversationId, message) => {
     const key = `messages:${conversationId}`;
-    await redisClient.lPush(key, JSON.stringify(message));
+    await redisClient.rPush(key, JSON.stringify(message));
     // Trim to keep only the last MESSAGE_CACHE_SIZE messages
-    await redisClient.lTrim(key, 0, MESSAGE_CACHE_SIZE - 1);
+    await redisClient.lTrim(key, -MESSAGE_CACHE_SIZE, -1);
 };
 
 export const clearMessageCache = async (conversationId) => {

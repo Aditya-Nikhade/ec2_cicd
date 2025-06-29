@@ -99,6 +99,10 @@ export const getMessages = async (req, res) => {
 				}
 				return obj;
 			}));
+
+			// Sort cached messages by createdAt ascending
+			cachedWithUrls.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
+
 			console.log(`[Redis] Cache HIT: Retrieved ${cachedMessages.length} messages for conversation ${conversation._id}`);
 			return res.status(200).json(cachedWithUrls);
 		}
@@ -108,6 +112,9 @@ export const getMessages = async (req, res) => {
 		// If no cache, get from MongoDB and cache the results
 		const populatedConversation = await conversation.populate("messages");
 		let messages = populatedConversation.messages;
+
+		// Sort messages by createdAt ascending
+		messages = messages.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
 
 		// DON'T cache URLs (they expire). Cache raw messages only.
 		await cacheMessages(conversation._id.toString(), messages);
