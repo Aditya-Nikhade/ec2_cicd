@@ -191,6 +191,10 @@ export const deleteMessage = async (req, res) => {
 		}
 
 		messageToDelete.message = "This message was deleted";
+		messageToDelete.type = "text";
+		messageToDelete.url = undefined;
+		messageToDelete.fileName = undefined;
+		messageToDelete.s3Key = undefined;
 		await messageToDelete.save();
 
 		// Clear message cache for this conversation

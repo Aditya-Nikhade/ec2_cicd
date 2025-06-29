@@ -36,7 +36,9 @@ const Message = ({ message }) => {
 	};
 
 	const renderMessageContent = () => {
-		// In Message.jsx
+		if (message.message === "This message was deleted") {
+			return <i className="text-gray-400">{message.message}</i>;
+		}
 		if ((message.type === 'image' || message.fileType?.startsWith('image/')) && message.url) {
 			return <img src={message.url} alt={message.fileName} className="max-w-xs rounded-lg" />;
 		}
