@@ -46,10 +46,10 @@ services:
       
       # Additional production environment variables
       - CORS_ORIGIN=${CORS_ORIGIN}
-      # - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      # - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      # - AWS_REGION=${AWS_REGION}
-      # - AWS_S3_BUCKET=${AWS_S3_BUCKET}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
       # - SMTP_HOST=${SMTP_HOST}
       # - SMTP_PORT=${SMTP_PORT}
       # - SMTP_USER=${SMTP_USER}
