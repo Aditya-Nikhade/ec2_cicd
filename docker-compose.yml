@@ -30,62 +30,11 @@ services:
     build: ./backend
     ports:
       - "${PORT:-5000}:5000"
-    environment:
-      - NODE_ENV=${NODE_ENV:-production}
-      - PORT=5000
-      # MongoDB - UNCOMMENT AND UPDATE FOR PRODUCTION
-      # - MONGO_DB_URI=mongodb://YOUR_MONGODB_URI/demo-chat  # Replace with your MongoDB URI
-      - MONGO_DB_URI=${MONGO_DB_URI}
-      
-      # Redis - EXTERNAL REDIS (UNCOMMENT AND UPDATE)
-      # - REDIS_URL=redis://default:your_password@your_redis_endpoint:port  # Replace with your external Redis URL
-      - REDIS_URL=${REDIS_URL}
-      
-      # JWT Secret - CHANGE THIS FOR PRODUCTION
-      - JWT_SECRET=${JWT_SECRET}
-      
-      # Additional production environment variables
-      - CORS_ORIGIN=${CORS_ORIGIN}
-      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
-      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
-      - AWS_REGION=${AWS_REGION}
-      - AWS_S3_BUCKET=${AWS_S3_BUCKET}
-      # - SMTP_HOST=${SMTP_HOST}
-      # - SMTP_PORT=${SMTP_PORT}
-      # - SMTP_USER=${SMTP_USER}
-      # - SMTP_PASS=${SMTP_PASS}
-    #depends_on:
-      #- mongodb  # COMMENT OUT IF USING EXTERNAL MONGODB
-      # - redis    # COMMENT OUT IF USING EXTERNAL REDIS
     networks:
       - app-network
     restart: always
     env_file:
       - .env
-
-  # COMMENT OUT IF USING EXTERNAL MONGODB SERVICE
-  # mongodb:
-  #   image: mongo:latest
-  #   volumes:
-  #     - mongodb_data:/data/db
-  #   networks:
-  #     - app-network
-  #   environment:
-  #     - MONGO_INITDB_ROOT_USERNAME=${MONGO_ROOT_USERNAME:-admin}
-  #     - MONGO_INITDB_ROOT_PASSWORD=${MONGO_ROOT_PASSWORD:-password123}
-  #   env_file:
-  #     - .env
-
-  # COMMENT OUT IF USING EXTERNAL REDIS SERVICE  
-  # redis:
-  #   image: redis:alpine
-  #   volumes:
-  #     - redis_data:/data
-  #   networks:
-  #     - app-network
-  #   command: redis-server --requirepass ${REDIS_PASSWORD:-your_redis_password}
-  #   env_file:
-  #     - .env
 
 networks:
   app-network:
