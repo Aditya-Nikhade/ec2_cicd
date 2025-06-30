@@ -43,7 +43,26 @@ const Message = ({ message }) => {
 			return <img src={message.url} alt={message.fileName} className="max-w-xs rounded-lg" />;
 		}
 		if (message.type === 'file' && message.url) {
+			const fileExtension = message.fileName?.split('.').pop().toLowerCase();
+			const isPDF = fileExtension === 'pdf';
 			const handleDownload = () => window.open(message.url, '_blank');
+			if (isPDF) {
+				return (
+					<div className="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-lg shadow-sm w-full max-w-xs">
+						<span className="text-3xl text-red-500">📄</span>
+						<div className="flex-1 min-w-0">
+							<p className="font-semibold text-red-700 truncate">{message.fileName}</p>
+							<p className="text-xs text-red-400">PDF Document</p>
+						</div>
+						<button
+							onClick={handleDownload}
+							className="ml-2 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm font-medium shadow"
+						>
+							Download
+						</button>
+					</div>
+				);
+			}
 			return (
 				<button onClick={handleDownload} className="underline text-blue-500">
 					{message.fileName || 'Download file'}
@@ -54,6 +73,7 @@ const Message = ({ message }) => {
 		if (message.message.startsWith('[File]')) {
 			const [, fileName, fileUrl] = message.message.split(' - ');
 			const fileExtension = fileName.split('.').pop().toLowerCase();
+			const isPDF = fileExtension === 'pdf';
 			
 			// Determine file type icon
 			let fileIcon = '📄'; // Default document icon
@@ -88,6 +108,23 @@ const Message = ({ message }) => {
 				}
 			};
 
+			if (isPDF) {
+				return (
+					<div className="flex items-center gap-3 p-3 bg-red-50 border border-red-200 rounded-lg shadow-sm w-full max-w-xs">
+						<span className="text-3xl text-red-500">📄</span>
+						<div className="flex-1 min-w-0">
+							<p className="font-semibold text-red-700 truncate">{fileName}</p>
+							<p className="text-xs text-red-400">PDF Document</p>
+						</div>
+						<button
+							onClick={handleDownload}
+							className="ml-2 px-3 py-1 bg-red-500 text-white rounded hover:bg-red-600 transition-colors text-sm font-medium shadow"
+						>
+							Download
+						</button>
+					</div>
+				);
+			}
 			return (
 				<div className="flex flex-col gap-1">
 					<button 
