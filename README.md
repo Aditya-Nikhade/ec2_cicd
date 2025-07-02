@@ -1,58 +1,89 @@
-# Demo Chat Application
+# Real-Time Chat Application
 
-A real-time chat application built with React, Node.js, MongoDB, and Redis, containerized with Docker.
+A full-featured, real-time chat application built with modern web technologies. This application provides seamless messaging, user authentication, and file sharing capabilities in a responsive, containerized environment.
 
 ## Features
 
-- Real-time messaging with Socket.IO
-- User authentication with JWT
-- Friend requests and management
-- File upload support
-- Responsive design
-- Docker containerization
+- **Real-time Messaging**: Instant message delivery using Socket.IO
+- **User Authentication**: Secure JWT-based authentication with Google OAuth 2.0
+- **Friend System**: Send, accept, and manage friend requests
+- **File Sharing**: Upload and share files with built-in storage
+- **Dockerized**: Easy deployment with Docker and Docker Compose
+- **CI/CD**: GitHub Actions for automated testing and deployment
+- **Scalable**: Microservices architecture with separate frontend and backend services
+- **Secure**: Environment-based configuration and secrets management
+
+## Tech Stack
+
+- **Frontend**: React.js, Vite, Tailwind CSS
+- **Backend**: Node.js, Express.js
+- **Database**: MongoDB
+- **Cache**: Redis
+- **Authentication**: JWT, Google OAuth 2.0
+- **Real-time**: Socket.IO
+- **Storage**: AWS S3 (for file uploads)
+- **Containerization**: Docker, Docker Compose
+- **CI/CD**: GitHub Actions
+- **Web Server**: Nginx (reverse proxy)
 
 ## Prerequisites
 
 - Docker and Docker Compose
 - Node.js >= 18.0.0 (for local development)
-- MongoDB >= 4.4
-- Redis >= 6.0
+- MongoDB Atlas or local MongoDB instance
+- Redis server
+- AWS S3 bucket (for file storage)
+- Google OAuth 2.0 credentials
 
-## Quick Start with Docker
+## Quick Start
 
-### 1. Environment Setup
+### Local Development
 
-First, set up your environment variables:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/yourusername/chat-app.git
+   cd chat-app
+   ```
 
-**For Development:**
-```bash
-cp env.development.template .env
-```
+2. **Set up environment variables**
+   ```bash
+   cp env.development.template .env
+   ```
+   Update the `.env` file with your local configuration.
 
-**For Production:**
-```bash
-cp env.production.template .env
-```
+3. **Start the application**
+   ```bash
+   docker-compose up --build
+   ```
 
-Then edit the `.env` file with your actual values.
+4. **Access the application**
+   - Frontend: http://localhost:5173
+   - Backend API: http://localhost:5000
 
-### 2. Start the Application
+### Production Deployment
 
-```bash
-docker-compose up --build
-```
+1. **Set up production environment**
+   ```bash
+   cp env.production.template .env
+   ```
+   Update the `.env` file with your production configuration.
 
-The application will be available at:
-- Frontend: http://localhost
-- Backend API: http://localhost:5000
+2. **Update Google Cloud Console**
+   - Add authorized redirect URIs:
+     - `https://yourdomain.com/api/auth/google/callback`
+     - `https://yourdomain.com/auth/callback`
+   - Add authorized JavaScript origins:
+     - `https://yourdomain.com`
+
+3. **Deploy with Docker**
+   ```bash
+   docker-compose -f docker-compose.prod.yml up --build -d
+   ```
 
 ## Environment Variables
 
-The application uses environment variables for configuration. Create a `.env` file based on the templates:
+Key environment variables to configure:
 
-### Required Variables
-
-| Variable | Description | Example |
 |----------|-------------|---------|
 | `NODE_ENV` | Environment mode | `development` or `production` |
 | `PORT` | Backend port | `5000` |
