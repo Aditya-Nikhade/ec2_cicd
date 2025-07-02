@@ -34,7 +34,7 @@ services:
       - app-network
     restart: always
     env_file:
-      - ./backend/.env
+      - .env
 
 networks:
   app-network:
