@@ -29,6 +29,7 @@ const useGetConversations = () => {
 				throw new Error(data.error || "Failed to fetch conversations");
 			}
 
+			// Remove Dummy user injection. Only use backend data.
 			setConversations(data);
 			if (selectedConversation && !data.some(conv => conv._id === selectedConversation._id)) {
 				clearSelectedConversation();

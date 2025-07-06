@@ -6,6 +6,7 @@ import cors from 'cors';
 import passport from 'passport';
 import session from 'express-session';
 import configurePassport from '../config/passport.js';
+import bcrypt from "bcryptjs";
 
 import authRoutes from "../routes/auth.routes.js";
 import messageRoutes from "../routes/message.routes.js";
@@ -101,4 +102,24 @@ app.get("*", (req, res) => {
 server.listen(PORT, () => {
   connectToMongoDB();
   console.log(`Server Running on port ${PORT}`);
+
+  // Ensure Dummy user exists
+  (async () => {
+    const mongoose = await import('mongoose');
+    const User = (await import('../models/user.model.js')).default;
+    const dummy = await User.findOne({ username: 'dummy' });
+    if (!dummy) {
+      const salt = await bcrypt.genSalt(10);
+      const hashedPassword = await bcrypt.hash('dummy', salt);
+      await User.create({
+        fullName: 'Dummy User',
+        username: 'dummy',
+        password: hashedPassword,
+        authProvider: 'local',
+      });
+      console.log('Dummy user created');
+    } else {
+      console.log('Dummy user already exists');
+    }
+  })();
 });

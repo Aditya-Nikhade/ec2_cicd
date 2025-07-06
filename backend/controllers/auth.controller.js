@@ -27,6 +27,30 @@ export const signup = async (req, res) => {
 
 		await newUser.save();
 		
+		// Ensure conversation with Dummy user
+		try {
+			const Conversation = (await import('../models/conversation.model.js')).default;
+			const dummyUser = await User.findOne({ username: 'dummy' });
+			if (dummyUser && dummyUser._id.toString() !== newUser._id.toString()) {
+				const existingConv = await Conversation.findOne({
+					participants: { $all: [newUser._id, dummyUser._id] }
+				});
+				if (!existingConv) {
+					await Conversation.create({ participants: [newUser._id, dummyUser._id] });
+				}
+				
+				// Make them friends
+				await User.findByIdAndUpdate(newUser._id, {
+					$addToSet: { friends: dummyUser._id }
+				});
+				await User.findByIdAndUpdate(dummyUser._id, {
+					$addToSet: { friends: newUser._id }
+				});
+			}
+		} catch (e) {
+			console.error('Error creating conversation with Dummy user:', e);
+		}
+
 		const token = generateTokenAndSetCookie(newUser._id, res);
 
 		res.status(201).json({

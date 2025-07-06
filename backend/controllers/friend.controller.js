@@ -165,10 +165,15 @@ export const unfriendUser = async (req, res) => {
     const { userId } = req.body;
     const currentUserId = req.user._id;
 
-    // Check if users exist
+    // Block unfriend if either user is Dummy
+    const User = (await import('../models/user.model.js')).default;
     const userToUnfriend = await User.findById(userId);
     const currentUser = await User.findById(currentUserId);
+    if (userToUnfriend?.username === 'dummy' || currentUser?.username === 'dummy') {
+      return res.status(400).json({ error: 'Cannot unfriend' });
+    }
 
+    // Check if users exist
     if (!userToUnfriend || !currentUser) {
       return res.status(404).json({ error: "User not found" });
     }

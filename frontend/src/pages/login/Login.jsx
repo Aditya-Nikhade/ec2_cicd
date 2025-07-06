@@ -110,6 +110,14 @@ const Login = () => {
             <span>Sign in with Google</span>
           </Button>
 
+          {/* Login as Dummy Button */}
+          <Button
+            onClick={async () => await login({ username: 'dummy', password: 'dummy' })}
+            className="cursor-pointer w-full h-12 flex items-center justify-center gap-1 bg-gray-200 border border-gray-300 text-gray-700 hover:bg-gray-300 rounded-md mt-2"
+          >
+            <span>Login as Dummy User</span>
+          </Button>
+
           {/* Sign Up Link */}
           <div className="text-center mt-6">
             <span className="text-gray-600">Don&apos;t have an account? </span>
