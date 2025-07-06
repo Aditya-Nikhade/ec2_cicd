@@ -118,9 +118,6 @@ const SignUp = () => {
 								className="w-full h-12 rounded-md border border-gray-300 px-4"
 								placeholder="Enter password"
 							/>
-							<p className="text-xs text-gray-500 mt-1">
-								Password must be at least 8 characters and include uppercase, lowercase, number, and special character.
-							</p>
 						</div>
 
 						<div className="space-y-2">
