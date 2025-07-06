@@ -197,6 +197,31 @@ export const deleteMessage = async (req, res) => {
 			return res.status(403).json({ error: "Not authorized to delete this message" });
 		}
 
+		// If the message has an s3Key, delete the file from storage
+		if (messageToDelete.s3Key) {
+			try {
+				// Try both possible fileUpload locations (S3 and local)
+				let deleted = false;
+				try {
+					const { deleteFile } = await import("../src/services/fileUpload.js");
+					deleted = await deleteFile(messageToDelete.s3Key);
+				} catch (e) {
+					// fallback to local if S3 fails
+					try {
+						const { deleteFile } = await import("../services/fileUpload.js");
+						deleted = await deleteFile(messageToDelete.s3Key);
+					} catch (err) {
+						console.error("Error deleting file from both S3 and local:", err);
+					}
+				}
+				if (!deleted) {
+					console.warn("File was not deleted from storage (may not exist):", messageToDelete.s3Key);
+				}
+			} catch (err) {
+				console.error("Error deleting file from storage:", err);
+			}
+		}
+
 		messageToDelete.message = "This message was deleted";
 		messageToDelete.type = "text";
 		messageToDelete.url = undefined;
