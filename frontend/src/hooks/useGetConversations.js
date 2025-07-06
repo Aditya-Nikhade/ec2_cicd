@@ -59,11 +59,16 @@ const useGetConversations = () => {
 		const handleFriendRequestAccepted = () => {
 			getConversations();
 		};
+		const handleNewFriend = ({ userId, username, fullName }) => {
+			getConversations();
+		};
 		socket.on("unfriended", handleUnfriended);
 		socket.on("friendRequestAccepted", handleFriendRequestAccepted);
+		socket.on("newFriend", handleNewFriend);
 		return () => {
 			socket.off("unfriended", handleUnfriended);
 			socket.off("friendRequestAccepted", handleFriendRequestAccepted);
+			socket.off("newFriend", handleNewFriend);
 		};
 	}, [socket, removeConversation, getConversations]);
 

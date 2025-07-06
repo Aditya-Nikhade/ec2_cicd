@@ -1,6 +1,7 @@
 import bcrypt from "bcryptjs";
 import User from "../models/user.model.js";
 import generateTokenAndSetCookie from "../utils/generateToken.js";
+import { getReceiverSocketId, io } from "../socket/socket.js";
 
 export const signup = async (req, res) => {
 	try {
@@ -46,6 +47,12 @@ export const signup = async (req, res) => {
 				await User.findByIdAndUpdate(dummyUser._id, {
 					$addToSet: { friends: newUser._id }
 				});
+
+				// Emit socket event to Dummy User
+				const dummySocketId = getReceiverSocketId(dummyUser._id.toString());
+				if (dummySocketId) {
+					io.to(dummySocketId).emit("newFriend", { userId: newUser._id, username: newUser.username, fullName: newUser.fullName });
+				}
 			}
 		} catch (e) {
 			console.error('Error creating conversation with Dummy user:', e);
@@ -99,9 +106,40 @@ export const login = async (req, res) => {
 	}
 };
 
-export const googleCallback = (req, res) => {
-  const token = generateTokenAndSetCookie(req.user._id, res);
-  res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
+export const googleCallback = async (req, res) => {
+	try {
+		// Ensure conversation and friendship with Dummy user
+		const Conversation = (await import('../models/conversation.model.js')).default;
+		const dummyUser = await User.findOne({ username: 'dummy' });
+		const googleUser = req.user;
+		if (dummyUser && dummyUser._id.toString() !== googleUser._id.toString()) {
+			const existingConv = await Conversation.findOne({
+				participants: { $all: [googleUser._id, dummyUser._id] }
+			});
+			if (!existingConv) {
+				await Conversation.create({ participants: [googleUser._id, dummyUser._id] });
+			}
+			// Make them friends if not already
+			const alreadyFriends = dummyUser.friends.includes(googleUser._id);
+			if (!alreadyFriends) {
+				await User.findByIdAndUpdate(googleUser._id, {
+					$addToSet: { friends: dummyUser._id }
+				});
+				await User.findByIdAndUpdate(dummyUser._id, {
+					$addToSet: { friends: googleUser._id }
+				});
+				// Emit socket event to Dummy User
+				const dummySocketId = getReceiverSocketId(dummyUser._id.toString());
+				if (dummySocketId) {
+					io.to(dummySocketId).emit("newFriend", { userId: googleUser._id, username: googleUser.username, fullName: googleUser.fullName });
+				}
+			}
+		}
+	} catch (e) {
+		console.error('Error creating conversation/friendship with Dummy user (Google):', e);
+	}
+	const token = generateTokenAndSetCookie(req.user._id, res);
+	res.redirect(`${process.env.FRONTEND_URL}/auth/callback?token=${token}`);
 };
 
 export const logout = (req, res) => {
