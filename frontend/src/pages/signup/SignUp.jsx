@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { toast } from "react-hot-toast";
+import Guide from "@/components/Guide";
 
 const SignUp = () => {
 	const [inputs, setInputs] = useState({
@@ -52,6 +53,7 @@ const SignUp = () => {
 					alt="Background" 
 					className="absolute inset-0 w-full h-full object-cover m-0"
 				/>
+				<Guide />
 			</div>
 
 			{/* Right side - Sign Up Form */}

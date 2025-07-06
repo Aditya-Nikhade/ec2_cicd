@@ -4,6 +4,7 @@ import useLogin from "../../hooks/useLogin";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import Guide from "@/components/Guide";
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -29,6 +30,7 @@ const Login = () => {
           alt="Background" 
           className="absolute inset-0 w-full h-full object-cover m-0"
         />
+        <Guide />
       </div>
 
       {/* Right side - Login Form */}
