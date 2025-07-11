@@ -33,7 +33,7 @@ const Guide = () => {
             <strong>1. Create an account with manual signup or Google signup.</strong>
           </li>
           <li>
-            <strong>2. Go to the "Chats" tab, a dummy user is already added as a friend.</strong>
+            <strong>2. Go to the &quot;Chats&quot; tab, a dummy user is already added as a friend.</strong>
           </li>
           <li>
             <strong>3. You can chat with him/her, send images/pdfs now.</strong>

@@ -207,6 +207,7 @@ export const deleteMessage = async (req, res) => {
 					deleted = await deleteFile(messageToDelete.s3Key);
 				} catch (e) {
 					// fallback to local if S3 fails
+					console.error(e)	
 					try {
 						const { deleteFile } = await import("../services/fileUpload.js");
 						deleted = await deleteFile(messageToDelete.s3Key);

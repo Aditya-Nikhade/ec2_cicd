@@ -105,7 +105,6 @@ server.listen(PORT, () => {
 
   // Ensure Dummy user exists
   (async () => {
-    const mongoose = await import('mongoose');
     const User = (await import('../models/user.model.js')).default;
     const dummy = await User.findOne({ username: 'dummy' });
     if (!dummy) {
